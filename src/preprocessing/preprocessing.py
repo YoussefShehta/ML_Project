@@ -26,6 +26,7 @@
 
 # Import the required libraries
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 # Import the data
 booking_data = pd.read_csv("data/Hotel_bookings.csv")
@@ -58,6 +59,102 @@ booking_data = booking_data[
 ]
 print (booking_data.shape)
 
+# drop duplicates
+booking_data.drop_duplicates(inplace=True)
+print(booking_data.shape)
+print (booking_data['Babies'].value_counts())
+
+
 # Clip extreme outliers in non-continous numeric columuns to specific upper limit
-booking_data['Babies'] = booking_data['Babies'].clip(upper=1)
-booking_data['Children'] = booking_data['Children'].clip(upper=2)
+# booking_data['Babies'] = booking_data['Babies'].clip(upper=1)
+# booking_data['Children'] = booking_data['Children'].clip(upper=2)  
+train_data, test_data = train_test_split(
+    booking_data, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=booking_data['IsCanceled']
+) 
+print (train_data.columns)
+print (train_data['ArrivalDateYear'].value_counts()) 
+print (train_data['ArrivalDateMonth'].value_counts()) 
+print (train_data['ArrivalDateWeekNumber'].value_counts())
+print (train_data['ArrivalDateDayOfMonth'].value_counts())
+print (train_data['StaysInWeekendNights'].value_counts())
+print (train_data['StaysInWeekNights'].value_counts())
+print (train_data['Adults'].value_counts())
+print (train_data['Children'].value_counts())
+print (train_data['Babies'].value_counts())
+
+# Remove outliers from babies
+train_data = train_data[train_data['Babies'] <2]
+
+# 'Meal', 'Country', 'MarketSegment', 'DistributionChannel',
+#        'IsRepeatedGuest', 'PreviousCancellations',
+#        'PreviousBookingsNotCanceled', 'ReservedRoomType', 'AssignedRoomType',
+#        'BookingChanges', 'DepositType', 'Agent', 'Company',
+#        'DaysInWaitingList', 'CustomerType', 'ADR', 'RequiredCarParkingSpaces',
+#        'TotalOfSpecialRequests', 'ReservationStatus', 'ReservationStatusDate'
+print (train_data['Meal'].value_counts())
+print (test_data['Meal'].value_counts())
+print (train_data['Country'].value_counts())
+print (test_data['Country'].value_counts())
+# Handle rare countries
+threshold = 0.02
+country_proportions = train_data['Country'].value_counts(normalize=True)
+frequent_countries = country_proportions[country_proportions >= threshold].index.tolist()
+train_data['Country'] = train_data['Country'].apply(lambda val: val if val in frequent_countries else 'Other')
+test_data['Country'] = test_data['Country'].apply(lambda val: val if val in frequent_countries else 'Other')
+print (train_data['Country'].value_counts())
+print (test_data['Country'].value_counts())
+print (train_data['MarketSegment'].value_counts())
+print (test_data['MarketSegment'].value_counts())
+print (train_data['DistributionChannel'].value_counts())
+print (test_data['DistributionChannel'].value_counts())
+print (train_data['IsRepeatedGuest'].value_counts())
+print (test_data['IsRepeatedGuest'].value_counts())
+print (train_data['PreviousCancellations'].value_counts())
+print (test_data['PreviousCancellations'].value_counts())
+#Remove outluers from PreviousCancellations
+train_data = train_data[train_data['PreviousCancellations'] <= 6]
+print (train_data['PreviousBookingsNotCanceled'].value_counts())
+print (test_data['PreviousBookingsNotCanceled'].value_counts())
+
+print (train_data[train_data['PreviousBookingsNotCanceled'] >= 5]['ADR'].count())
+# Handle outliers in PreviousBookingsNotCanceled by clipping to a maximum value of 5
+max_val = 7
+train_data['PreviousBookingsNotCanceled'] = train_data['PreviousBookingsNotCanceled'].clip(upper=max_val)
+test_data['PreviousBookingsNotCanceled'] = test_data['PreviousBookingsNotCanceled'].clip(upper=max_val) 
+print (train_data['PreviousBookingsNotCanceled'].value_counts())
+print (test_data['PreviousBookingsNotCanceled'].value_counts())
+print (train_data['ReservedRoomType'].value_counts())
+print (test_data['ReservedRoomType'].value_counts())
+
+frequent_rooms = ['A', 'D', 'F', 'E', 'B', 'G']
+train_data['ReservedRoomType'] = train_data['ReservedRoomType'].apply(lambda val: val if val in frequent_rooms else 'Other')
+test_data['ReservedRoomType'] = test_data['ReservedRoomType'].apply(lambda val: val if val in frequent_rooms else 'Other')
+
+print (train_data['AssignedRoomType'].value_counts())
+print (test_data['AssignedRoomType'].value_counts())
+
+
+frequent_assigned_rooms = ['A', 'D', 'E', 'F', 'B', 'G', 'C', 'K']
+train_data['AssignedRoomType'] = train_data['AssignedRoomType'].apply(lambda val: val if val in frequent_assigned_rooms else 'Other')
+test_data['AssignedRoomType'] = test_data['AssignedRoomType'].apply(lambda val: val if val in frequent_assigned_rooms else 'Other')
+
+print (train_data['BookingChanges'].value_counts())
+print (test_data['BookingChanges'].value_counts()) 
+
+max_val = 5
+train_data['BookingChanges'] = train_data['BookingChanges'].clip(upper=max_val)
+test_data['BookingChanges'] = test_data['BookingChanges'].clip(upper=max_val)
+
+print (train_data['DepositType'].value_counts())
+print (test_data['DepositType'].value_counts()) 
+
+pd.set_option('display.max_rows', None)       
+pd.set_option('display.max_columns', None)     
+pd.set_option('display.max_colwidth', None)
+print (train_data['Agent'].value_counts())
+print (test_data['Agent'].value_counts()) 
+print (train_data['Agent'].nunique())
+print (test_data['Agent'].nunique()) 
