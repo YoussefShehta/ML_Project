@@ -158,3 +158,49 @@ print (train_data['Agent'].value_counts())
 print (test_data['Agent'].value_counts()) 
 print (train_data['Agent'].nunique())
 print (test_data['Agent'].nunique()) 
+
+# Chosing the most frequent agents and grouping the rest into 'Other'
+frequent_agents = ['9', 'NULL', '14', '7', '28', '1', '8']
+def clean_agent(val):
+    val_str = str(val).strip()
+    if val_str in frequent_agents:
+        return val_str
+    else:
+        return 'Other'
+
+train_data['Agent'] = train_data['Agent'].apply(clean_agent)
+test_data['Agent'] = test_data['Agent'].apply(clean_agent) 
+print (train_data['Agent'].value_counts())
+print (test_data['Agent'].value_counts()) 
+print (train_data['Agent'].nunique())
+print (test_data['Agent'].nunique())   
+
+print (train_data['Company'].value_counts())
+print (test_data['Company'].value_counts()) 
+print (train_data['Company'].nunique())
+print (test_data['Company'].nunique())   
+
+frequent_companies = ['Unknown', '40', '45', '153', '219', '174', '233', '51']
+
+train_data['Company'] = train_data['Company'].apply(lambda val: val if val in frequent_companies else 'Other_company')
+test_data['Company'] = test_data['Company'].apply(lambda val: val if val in frequent_companies else 'Other_company') 
+print (train_data['CustomerType'].value_counts())
+print (test_data['CustomerType'].value_counts()) # No issues with this feature 
+print (train_data['RequiredCarParkingSpaces'].value_counts())
+print (test_data['RequiredCarParkingSpaces'].value_counts()) 
+
+# Required car parking spaces with values 2, 3 are very rare. with only 5 values in  the train set so, we will remove them to avoid noise. 
+max_parking = 1
+train_data['RequiredCarParkingSpaces'] = train_data['RequiredCarParkingSpaces'].clip(upper=max_parking)
+test_data['RequiredCarParkingSpaces'] = test_data['RequiredCarParkingSpaces'].clip(upper=max_parking) 
+print (train_data['TotalOfSpecialRequests'].value_counts())
+print (test_data['TotalOfSpecialRequests'].value_counts()) #No issues with this feature.
+print (train_data['ReservationStatus'].value_counts())
+print (test_data['ReservationStatus'].value_counts()) # No issues with this feature. 
+# weird column with 864 unique values.
+print (train_data['ReservationStatusDate'].value_counts())
+print (test_data['ReservationStatusDate'].value_counts())
+print (train_data['ReservationStatusDate'].nunique())
+print (test_data['ReservationStatusDate'].nunique()) 
+print(booking_data['ReservationStatusDate'].nunique())
+
