@@ -64,6 +64,9 @@ booking_data.drop_duplicates(inplace=True)
 print(booking_data.shape)
 print (booking_data['Babies'].value_counts())
 
+# Convert 'ReservationStatusDate' to datetime format.
+booking_data['ReservationStatusDate'] = pd.to_datetime(booking_data['ReservationStatusDate'], errors='coerce')
+
 
 # Clip extreme outliers in non-continous numeric columuns to specific upper limit
 # booking_data['Babies'] = booking_data['Babies'].clip(upper=1)
@@ -204,3 +207,6 @@ print (train_data['ReservationStatusDate'].nunique())
 print (test_data['ReservationStatusDate'].nunique()) 
 print(booking_data['ReservationStatusDate'].nunique())
 
+# Save proprocessed train and test data to CSV files
+train_data.to_csv("data/train_preprocessed.csv", index=False)
+test_data.to_csv("data/test_preprocessed.csv", index=False)
